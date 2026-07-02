@@ -3,13 +3,10 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Owner-Key Forensics — Ditto SN118 & Bitmind SN34</title>
+<title>Owner-Key Forensics — Bittensor subnet owners</title>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
 <style>
-  :root{
-    --green:#1a7a3a; --red:#c0392b; --amber:#d4a017; --grey:#999;
-    --ink:#111; --line:#e2e2e2; --line2:#f0f0f0; --bg:#fff; --soft:#fafafa;
-  }
+  :root{--green:#1a7a3a;--red:#c0392b;--amber:#d4a017;--grey:#999;--ink:#111;--line:#e2e2e2;--line2:#f0f0f0;--bg:#fff;--soft:#fafafa;}
   *{box-sizing:border-box}
   body{font-family:Arial,Helvetica,sans-serif;color:var(--ink);background:var(--bg);margin:0;line-height:1.45;-webkit-font-smoothing:antialiased}
   .wrap{max-width:1080px;margin:0 auto;padding:32px 28px 64px}
@@ -22,15 +19,12 @@
   .toggle button{font-family:inherit;font-size:12.5px;font-weight:700;padding:9px 16px;border:1px solid var(--line);border-radius:5px;background:#fff;color:#555;cursor:pointer;transition:.15s}
   .toggle button.active{background:var(--ink);color:#fff;border-color:var(--ink)}
   .toggle button:not(.active):hover{background:var(--soft)}
-  .toggle .grouplbl{font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.5px;color:var(--grey);align-self:center;margin:0 2px}
   .keyline{font-size:14px;background:var(--soft);border-left:3px solid var(--ink);padding:12px 16px;margin:0 0 24px;border-radius:0 4px 4px 0}
   .wallet{font-family:'SF Mono',Consolas,monospace;font-size:12px;background:var(--soft);border:1px solid var(--line);border-radius:5px;padding:10px 14px;margin-bottom:22px;display:flex;flex-wrap:wrap;gap:6px 26px}
   .wallet b{color:#555;font-weight:700;font-family:Arial}
   .kpis{display:grid;grid-template-columns:repeat(3,1fr);gap:14px;margin-bottom:28px}
   .kpi{border:1px solid var(--line);border-radius:6px;padding:16px 18px}
-  .kpi.hero-earn{border-top:3px solid var(--amber)}
-  .kpi.hero-sold{border-top:3px solid var(--red)}
-  .kpi.hero-held{border-top:3px solid var(--ink)}
+  .kpi.he{border-top:3px solid var(--amber)}.kpi.hs{border-top:3px solid var(--red)}.kpi.hh{border-top:3px solid var(--ink)}
   .kpi .label{font-size:11px;text-transform:uppercase;letter-spacing:.5px;color:var(--grey);font-weight:700;margin-bottom:8px}
   .kpi .val{font-size:24px;font-weight:700;letter-spacing:-.5px}
   .kpi .usd{font-size:14px;color:#555;font-weight:700;margin-top:2px}
@@ -45,10 +39,8 @@
   th:first-child,td:first-child{text-align:left}
   th.grp{text-align:center;border-bottom:0;color:var(--ink);padding-bottom:2px}
   tbody tr:hover{background:var(--soft)}
-  td.sold{color:var(--red);font-weight:600}
-  td.add{color:var(--green);font-weight:600}
+  td.sold{color:var(--red);font-weight:600}td.add{color:var(--green);font-weight:600}
   .num{font-variant-numeric:tabular-nums}
-  tr.dorm td{color:var(--grey);font-style:italic}
   .divcol{border-left:1px solid var(--line)}
   tfoot td{border-top:2px solid var(--ink);font-weight:700;font-size:12.5px}
   .findings{font-size:13.5px}
@@ -58,7 +50,7 @@
   footer{margin-top:40px;padding-top:16px;border-top:1px solid var(--line);font-size:11.5px;color:#888}
   .method{background:var(--soft);border:1px solid var(--line);border-radius:6px;padding:14px 18px;font-size:12.5px;color:#555;margin-top:8px}
   .method b{color:var(--ink)}
-  .addnote{font-size:11.5px;color:var(--green);margin:8px 0 0}
+  .addnote{font-size:11.5px;color:#777;margin:8px 0 0}
   .clarify{border:1px solid var(--amber);background:#fdf8ec;border-radius:6px;padding:14px 18px;font-size:12.5px;color:#4a3c14;margin:0 0 16px;line-height:1.5}
   .clarify b{color:var(--ink)}
   .clarify .tag{display:inline-block;font-size:10px;font-weight:700;letter-spacing:.5px;text-transform:uppercase;color:#fff;background:var(--amber);padding:2px 8px;border-radius:3px;margin-right:8px;vertical-align:middle}
@@ -70,8 +62,8 @@
   <header>
     <div class="eyebrow">TAO Institute · On-Chain Forensics</div>
     <h1>Subnet Owner-Key Analysis</h1>
-    <div class="sub">Owner emissions earned vs. sold, and what's left in the wallet — since dTAO. Six subnets. All values in TAO and USD.</div>
-    <div class="asof">Source: Taostats API + CoinGecko · Snapshot 2 Jul 2026 · TAO ≈ $202</div>
+    <div class="sub">Owner emissions earned vs. sold, and what's left in the wallet — since each owner wallet went live. Six subnets. All values in TAO and USD.</div>
+    <div class="asof">Source: Taostats (account + stake + pool) + CoinGecko · Snapshot 2 Jul 2026 · TAO ≈ $202</div>
   </header>
 
   <div class="toggle">
@@ -90,7 +82,7 @@
   <h2>Earned vs. sold, by month (USD)</h2>
   <div class="legend">
     <span><i style="background:var(--amber)"></i>Owner emission earned</span>
-    <span><i style="background:var(--red)"></i>Sold (unstaked into pool)</span>
+    <span><i style="background:var(--red)"></i>Sold (alpha unstaked → TAO)</span>
     <span><i style="background:var(--green)"></i>Below zero = net added to stake, not sold</span>
   </div>
   <div class="chartbox"><canvas id="chart"></canvas></div>
@@ -98,13 +90,7 @@
   <h2>Monthly detail — TAO &amp; USD</h2>
   <div class="clarify">
     <span class="tag">Read "Sold" as</span><b>alpha unstaked → swapped to TAO</b>, not a wallet transfer.
-    These are <b>not</b> coldkey token transfers — transfers out of both owner wallets are ~zero since dTAO.
-    "Sold" = alpha taken out of the owner's staked position. Under dTAO the only way to exit an alpha
-    position is to <code>remove_stake</code>, which swaps the alpha into TAO through the subnet's pool at the
-    prevailing alpha price — so every figure here is <b>alpha swapped into TAO</b>, valued at that price.
-    <b>Not confirmed as fiat/exchange sales:</b> the TAO proceeds did not leave via transfers and free balances
-    are ~0, so they were most likely redeployed (restaked) rather than cashed out. Treat this as sell-side
-    pressure on the alpha token, not confirmed fiat realisation.
+    Under dTAO the only way to exit an alpha position is to <code>remove_stake</code>, which swaps alpha into TAO through the subnet's pool at the prevailing price — so each figure is <b>alpha swapped into TAO</b>, valued at that price. It is <b>not</b> a coldkey token transfer (those are ~zero) and <b>not confirmed as a fiat/exchange sale</b> — the proceeds were most likely redeployed. "Retained" is the owner coldkey's <b>total</b> staked alpha across all its hotkeys (via account history), and each series starts the month the owner wallet went live; earlier emissions on re-registered netuids belonged to prior owners and are excluded. First live month is a baseline (position established, not a sale).
   </div>
   <table>
     <thead>
@@ -120,7 +106,7 @@
   <div class="findings" id="findings"></div>
 
   <div class="method">
-    <b>Method.</b> Owner emission = 0.18 × monthly change in subnet <code>total_alpha</code> (the 18% owner cut), valued at month-end alpha and TAO prices — validated against realised owner-hotkey accrual on SN25. <b>Sold</b> = emission earned − change in the owner hotkey's staked position, valued the same way. A <b>negative "sold" (green)</b> means the position grew by <i>more</i> than the owner cut that month — the owner hotkey also earns validator rewards and can restake, so it accumulated rather than sold. Only the one registered owner coldkey per subnet is traced. Realised USD is timing-dependent because alpha prices fell sharply. Verify against Taostats before external use.
+    <b>Method.</b> Owner emission = 0.18 × monthly change in subnet <code>total_alpha</code> (the 18% owner cut), valued at month-end alpha and TAO prices. <b>Retained</b> = the owner coldkey's total staked-alpha value across all hotkeys, from Taostats account history, converted to alpha at each month's price. <b>Sold</b> = emission earned − change in retained. A negative "sold" (green) = the position grew faster than the owner cut (validator rewards / restaking / buying) = accumulation, not a sale. Each subnet's series begins when its owner wallet first holds stake; for re-registered netuids (Ditto, Minos, SCORE) earlier emissions accrued to prior owners and are excluded. Realised USD is timing-dependent as alpha prices moved. Verify against Taostats before external use.
   </div>
 
   <footer>TAO Institute — Pylon Partners. Internal research. On-chain data via Taostats &amp; CoinGecko Enterprise.</footer>
@@ -128,237 +114,127 @@
 
 <script>
 const DATA = {
-  bitmind: {
-    name:"Bitmind", netuid:34,
-    coldkey:"5DthmKBR83sUdudSfgFnsxBkTYtYTFLJUgovNfb1TSKVLiTH",
-    hotkey:"5HjBSeeoz52CLfvDWDkzupqrYLHz1oToDPHjdmJjc4TF68LQ",
-    keyline:"Accumulated steadily through 2025 to a ~5,000 TAO peak (Oct–Dec 2025), then sold the position down ~90% across H1 2026. Net seller of the vast majority of everything earned.",
-    current:{ tao:393.5, usd:79700, alpha:31457 },
-    // month, earnTAO, earnUSD, soldTAO, soldUSD  (null = no emission basis)
-    rows:[
-      ["2025-02",null,null,null,null],
-      ["2025-03",3220,729214,1134,256719],
-      ["2025-04",2358,863969,1186,434546],
-      ["2025-05",1734,657127,1771,671348],
-      ["2025-06",1668,577751,2512,870362],
-      ["2025-07",1501,559830,469,175098],
-      ["2025-08",1446,466725,438,141411],
-      ["2025-09",1464,454069,423,131102],
-      ["2025-10",1445,599038,431,178773],
-      ["2025-11",1265,375022,2231,661166],
-      ["2025-12",994,219767,9,1984],
-      ["2026-01",644,138504,2886,620439],
-      ["2026-02",401,70620,1661,292695],
-      ["2026-03",467,145060,411,127796],
-      ["2026-04",461,117187,-168,-42608],
-      ["2026-05",387,98165,903,229146],
-      ["2026-06",399,83198,834,173816],
-      ["2026-07",35,7047,11,2309]
-    ],
-    tot:{ earnT:19888, earnU:6162293, soldT:17310, soldU:4968710 },
+  bitmind:{name:"Bitmind",netuid:34,active:"Feb 2025 (dTAO)",
+    coldkey:"5DthmKBR83sUdudSfgFnsxBkTYtYTFLJUgovNfb1TSKVLiTH",hotkey:"5HjBSeeoz52CLfvDWDkzupqrYLHz1oToDPHjdmJjc4TF68LQ",
+    keyline:"Accumulated through 2025 to a ~5,000 TAO peak (Oct 2025), then sold the position down ~90% across H1 2026. Sold ~$5.0M of ~$6.2M earned; holds just ~$80k.",
+    current:{tao:393.5,usd:79665,alpha:31457},
+    rows:[["2025-02",0,0,null,null],["2025-03",3220,729214,1164,263659],["2025-04",2358,863969,1207,442210],["2025-05",1734,657127,1741,660011],["2025-06",1668,577751,2508,869001],["2025-07",1501,559830,472,176103],["2025-08",1446,466725,430,138821],["2025-09",1464,454069,431,133732],["2025-10",1445,599038,435,180415],["2025-11",1265,375022,2229,660680],["2025-12",994,219767,7,1453],["2026-01",644,138504,2893,622059],["2026-02",401,70620,1637,288518],["2026-03",467,145060,424,131821],["2026-04",461,117187,-165,-41957],["2026-05",387,98165,898,227877],["2026-06",399,83198,871,181376],["2026-07",35,7047,35,7047]],
+    tot:{earnT:19888,earnU:6162293,soldT:17383,soldU:4984783},
     findings:[
-      "<b>Net seller.</b> Earned ~19,888 TAO (~$6.2M at accrual) in owner emissions; sold ~17,310 TAO (~$5.0M). Current holdings of ~394 TAO (~$80k) are ~2% of what was earned.",
-      "<b>Sells via alpha unstaking, not TAO transfers.</b> Coldkey TAO transfers-out are ~zero since dTAO — the selling lands directly on the SN34 alpha/TAO pool.",
-      "<b>Held, then dumped.</b> Peaked ~5,000 TAO of value in late 2025, then the heaviest selling (Nov '25, Jan–Feb '26) came <i>after</i> alpha had already depreciated.",
-      "<b>April 2026 was an accumulation month</b> (green, −168 TAO): the staked position grew faster than the owner cut — validator rewards plus restaking, not a sale."
-    ]
-  },
-  ditto: {
-    name:"Ditto", netuid:118,
-    coldkey:"5DUJfND9r2BjiJHNKSxJxzT7ptrxiseFe1GxeMwcTov52Y55",
-    hotkey:"5HmP9732JFjnut2RY9yg4Gz2qJ38vF8xFwZb5dQVPF7FsmZz",
-    keyline:"Netuid 118 was a dormant slot until ~Oct 2025. From launch through Mar 2026 the owner retained nothing — ~100% of emissions sold each month. Only began keeping a position in Apr 2026.",
-    current:{ tao:400.2, usd:81000, alpha:20243 },
-    rows:[
-      ["2025-06",0,0,0,0,"dorm"],
-      ["2025-07",0,0,0,0,"dorm"],
-      ["2025-08",0,0,0,0,"dorm"],
-      ["2025-09",0,0,0,0,"dorm"],
-      ["2025-10",131,54331,131,54331],
-      ["2025-11",260,77121,260,77121],
-      ["2025-12",278,61537,278,61537],
-      ["2026-01",210,45117,210,45117],
-      ["2026-02",191,33612,191,33612],
-      ["2026-03",179,55581,179,55581],
-      ["2026-04",250,63484,247,62695],
-      ["2026-05",577,146376,-226,-57260],
-      ["2026-06",890,185369,1401,291735],
-      ["2026-07",49,9901,6,1299]
-    ],
-    tot:{ earnT:3014, earnU:732429, soldT:2903, soldU:683028 },
+      "<b>Net seller.</b> Earned ~19,888 TAO (~$6.2M) in owner emissions; sold ~17,400 TAO (~$5.0M). Holdings of ~394 TAO (~$80k) are ~2% of what was earned.",
+      "<b>Sells via alpha unstaking, not TAO transfers.</b> Coldkey transfers-out are ~zero since dTAO — sell pressure lands on the SN34 pool.",
+      "<b>Held, then dumped.</b> Peaked ~5,000 TAO of value in late 2025; heaviest selling (Nov '25, Jan '26) came after alpha had already depreciated.",
+      "<b>Single hotkey</b> — the coldkey's whole position sits on the owner hotkey, so account total equals the owner-hotkey view."
+    ]},
+  ditto:{name:"Ditto",netuid:118,active:"Apr 2026",
+    coldkey:"5DUJfND9r2BjiJHNKSxJxzT7ptrxiseFe1GxeMwcTov52Y55",hotkey:"5HmP9732JFjnut2RY9yg4Gz2qJ38vF8xFwZb5dQVPF7FsmZz",
+    keyline:"This owner wallet only went live end-April 2026 (a fresh coldkey). Earlier SN118 emissions belonged to a prior owner and are excluded. In its short life: earned ~1,766 TAO ($405k), sold ~$303k, holds ~$81k.",
+    current:{tao:400.2,usd:81015,alpha:20243},
+    rows:[["2026-04",250,63484,null,null],["2026-05",577,146376,-267,-67879],["2026-06",890,185369,1444,300645],["2026-07",49,9901,13,2645]],
+    tot:{earnT:1766,earnU:405130,soldT:1457,soldU:303290},
     findings:[
-      "<b>Sold from day one.</b> Real alpha emission began ~Oct 2025; the owner retained nothing for its first ~6 months, selling ~100% of the owner cut monthly.",
-      "<b>Earned ~3,014 TAO (~$732k); sold ~2,903 TAO (~$683k).</b> Current holdings ~400 TAO (~$81k), almost entirely self-staked alpha.",
-      "<b>No exchange transfers.</b> The owner coldkey has essentially no TAO transfer activity — all realisation ran through alpha unstaking.",
-      "<b>Behaviour shifted Apr–May 2026:</b> the owner accumulated (May is green, −226 TAO), then sold again in June. Worth watching whether the hold-rate persists."
-    ]
-  },
-  beam: {
-    name:"BEAM", netuid:105,
-    coldkey:"5G3ic2pAzVu1gZmeUQfKGox3P8TetJw87asvyAdkb2o8aCCX",
-    hotkey:"5HBSExJPHsaHV3TuohhRi4oajphhVXFyanhWN96Ed3DHHTY4",
-    keyline:"Net seller. Earned ~3,150 TAO since launch (Nov 2025) and sold ~all of it; holds just ~465 TAO ($94k), with a position that swings sharply month to month.",
-    current:{ tao:465.1, usd:94156, alpha:46411 },
-    rows:[
-      ["2025-05",0,0,0,0,"dorm"],["2025-06",78,26851,78,26851],["2025-07",120,44651,120,44651],
-      ["2025-08",94,30230,94,30230],["2025-09",95,29366,95,29366],["2025-10",109,45131,109,45131],
-      ["2025-11",0,0,-120,-35426],["2025-12",226,49872,73,16066],["2026-01",219,47142,62,13307],
-      ["2026-02",200,35297,49,8661],["2026-03",427,132592,1233,383112],["2026-04",620,157500,128,32460],
-      ["2026-05",445,113018,561,142279],["2026-06",486,101201,624,129857],["2026-07",33,6596,12,2320]
-    ],
-    tot:{ earnT:3150, earnU:819447, soldT:3234, soldU:904291 },
+      "<b>Fresh wallet from Apr 2026.</b> The earlier 'sold ~100% Oct 2025–Mar 2026' figures belonged to a previous owner of netuid 118, not this coldkey — now excluded.",
+      "<b>Short track record (~4 months).</b> Earned ~1,766 TAO ($405k), sold ~1,457 TAO ($303k), holds ~400 TAO ($81k).",
+      "<b>Net seller so far</b> — one large June 2026 unstake against a small position.",
+      "<b>Watch the hold-rate</b> — too little history to call the owner's steady-state behaviour."
+    ]},
+  beam:{name:"BEAM",netuid:105,active:"Nov 2025",
+    coldkey:"5G3ic2pAzVu1gZmeUQfKGox3P8TetJw87asvyAdkb2o8aCCX",hotkey:"5HBSExJPHsaHV3TuohhRi4oajphhVXFyanhWN96Ed3DHHTY4",
+    keyline:"Net seller. Earned ~2,656 TAO ($643k) since launch (Nov 2025) and sold slightly more, drawing down the base; holds just ~465 TAO ($94k), with a position that swings sharply month to month.",
+    current:{tao:465.1,usd:94156,alpha:46411},
+    rows:[["2025-11",0,0,null,null],["2025-12",226,49872,78,17285],["2026-01",219,47142,63,13434],["2026-02",200,35297,52,9159],["2026-03",427,132592,1225,380674],["2026-04",620,157500,128,32585],["2026-05",445,113018,-36,-9106],["2026-06",486,101201,1357,282607],["2026-07",33,6596,-1,-228]],
+    tot:{earnT:2656,earnU:643218,soldT:2903,soldU:735744},
     findings:[
-      "<b>Net seller.</b> Earned ~3,150 TAO ($819k) since launch, sold ~all of it; holds just ~465 TAO ($94k).",
-      "<b>Highly volatile position.</b> Built to ~560 TAO (Feb 2026), dumped in March, rebuilt, dumped again — repeated build-and-sell cycles.",
-      "<b>Realisation via unstaking, not transfers.</b> The selling lands on the SN105 alpha/TAO pool; the wallet retains almost nothing.",
-      "<b>Smallest current holding of the six</b> — profile closest to Bitmind and Ditto (earn-and-dump)."
-    ]
-  },
-  minos: {
-    name:"Minos", netuid:107,
-    coldkey:"5DA2vLrSXZxnT9G4Yrywx1Fpi4RXwMH1Ah7r8DTTWS7UZZBM",
-    hotkey:"5E4WJ2tAZVDTRVvSFtR1jJqAX4CokgCt9JYmPzJMWDmUT3Ju",
-    keyline:"Sold nearly all emissions through late 2025, then flipped to aggressive accumulation from Feb 2026. Now holds ~7,700 TAO ($1.56M) — more than its cumulative owner cut, implying net buying/restaking.",
-    current:{ tao:7727.3, usd:1564233, alpha:173690 },
-    rows:[
-      ["2025-05",0,0,0,0,"dorm"],["2025-06",191,66090,191,66090],["2025-07",136,50885,136,50885],
-      ["2025-08",107,34447,107,34447],["2025-09",101,31176,101,31176],["2025-10",155,64154,155,64154],
-      ["2025-11",252,74797,252,74797],["2025-12",209,46257,209,46257],["2026-01",129,27700,129,27700],
-      ["2026-02",0,0,-311,-54779],["2026-03",647,201205,126,39102],["2026-04",1297,329416,353,89622],
-      ["2026-05",1519,385485,98,24929],["2026-06",2196,457351,1588,330735],["2026-07",157,31810,48,9693]
-    ],
-    tot:{ earnT:7095, earnU:1800773, soldT:3492, soldU:889587 },
+      "<b>Net seller.</b> Earned ~2,656 TAO ($643k); sold ~2,900 TAO ($736k), running the position below what emissions added. Holds just ~465 TAO ($94k).",
+      "<b>Highly volatile.</b> Built to a ~1,110 TAO peak (May 2026), then halved — repeated build-and-sell cycles.",
+      "<b>Realisation via unstaking</b>, not transfers — selling lands on the SN105 pool.",
+      "<b>Smallest current holding of the six</b> — profile closest to Bitmind (earn-and-dump)."
+    ]},
+  minos:{name:"Minos",netuid:107,active:"Feb 2026",
+    coldkey:"5DA2vLrSXZxnT9G4Yrywx1Fpi4RXwMH1Ah7r8DTTWS7UZZBM",hotkey:"5E4WJ2tAZVDTRVvSFtR1jJqAX4CokgCt9JYmPzJMWDmUT3Ju",
+    keyline:"Owner wallet live from Feb 2026 (netuid 107 was a different subnet before; earlier emissions excluded). Accumulator: earned ~5,816 TAO ($1.41M), sold only ~$508k, holds ~7,727 TAO ($1.56M).",
+    current:{tao:7727.3,usd:1564233,alpha:173690},
+    rows:[["2026-02",0,0,null,null],["2026-03",647,201205,203,63095],["2026-04",1297,329416,64,16222],["2026-05",1519,385485,-1,-387],["2026-06",2196,457351,1430,297892],["2026-07",157,31810,648,131193]],
+    tot:{earnT:5816,earnU:1405267,soldT:2345,soldU:508402},
     findings:[
-      "<b>Sold early, now accumulating hard.</b> Retained nothing through late 2025 (sold ~100% of the owner cut), then flipped to aggressive accumulation from Feb 2026.",
-      "<b>Holds more than it earned.</b> ~7,727 TAO ($1.56M) on-chain vs ~7,095 TAO of estimated owner emission — the owner hotkey earns validator rewards and appears to be net-adding, not selling.",
-      "<b>Recent selling is churn, not exit.</b> The ~1,588 TAO June figure sits against a still-rising position; net accumulation continued.",
-      "<b>The clearest 'converted seller'</b> — behaviour inverted from dump to hoard mid-life."
-    ]
-  },
-  score: {
-    name:"SCORE", netuid:44,
-    coldkey:"5CaCekuxb9pKQyLoxh3jbkEXig8fxjkeS4AQ6UmZa12xfQ9H",
-    hotkey:"5FsREvyUXSZWYRqVyQLDdpYmZZPnkhZyW6HjooozKP1nQkwu",
-    keyline:"Largest earner of the set (~$7.0M owner cut). Sells the majority but keeps a meaningful stack — holds ~8,000 TAO ($1.62M), rebuilt through 2026 after a heavy January sell.",
-    current:{ tao:8002.2, usd:1619891, alpha:199681 },
-    rows:[
-      ["2025-02",0,0,0,0,"dorm"],["2025-03",854,193404,854,193404],["2025-04",1603,587428,1603,587428],
-      ["2025-05",1797,681260,1450,549738],["2025-06",2560,886935,1016,352021],["2025-07",1905,710513,1502,560244],
-      ["2025-08",1245,401718,2110,681100],["2025-09",1262,391265,594,184135],["2025-10",1237,513001,609,252699],
-      ["2025-11",1165,345406,541,160473],["2025-12",1166,257869,436,96364],["2026-01",1126,242047,5428,1167007],
-      ["2026-02",1229,216541,-24,-4289],["2026-03",1390,431933,159,49334],["2026-04",1421,360889,107,27076],
-      ["2026-05",1542,391435,-71,-17986],["2026-06",1621,337632,1676,348973],["2026-07",118,23909,49,9914]
-    ],
-    tot:{ earnT:23240, earnU:6973185, soldT:18134, soldU:5219910 },
+      "<b>Strong accumulator.</b> Sold only ~40% of what it earned; holds ~$1.56M — the second-largest of the six.",
+      "<b>Owner active only from Feb 2026.</b> The pre-2026 netuid-107 emissions belonged to a prior occupant and are excluded — the earlier 'sold everything in 2025' read was mis-attributed.",
+      "<b>Recent selling is churn</b> (June–July) against a still-large, rising position.",
+      "<b>Holds more than half of emissions on-chain</b> — the clearest holder profile alongside Metanova."
+    ]},
+  score:{name:"SCORE",netuid:44,active:"May 2025",
+    coldkey:"5CaCekuxb9pKQyLoxh3jbkEXig8fxjkeS4AQ6UmZa12xfQ9H",hotkey:"5FsREvyUXSZWYRqVyQLDdpYmZZPnkhZyW6HjooozKP1nQkwu (+ 2nd hotkey)",
+    keyline:"Owner wallet live from May 2025 (earlier netuid-44 emissions excluded). Biggest earner (~$6.2M). Sells in waves — big draws in Aug 2025 and Jan 2026 — but rebuilds each time; holds ~8,002 TAO ($1.62M).",
+    current:{tao:8002.2,usd:1619891,alpha:199681},
+    rows:[["2025-05",1797,681260,null,null],["2025-06",2560,886935,678,235029],["2025-07",1905,710513,2380,887542],["2025-08",1245,401718,3516,1134625],["2025-09",1262,391265,590,183044],["2025-10",1237,513001,598,247882],["2025-11",1165,345406,563,166823],["2025-12",1166,257869,366,80918],["2026-01",1126,242047,5426,1166483],["2026-02",1229,216541,80,14033],["2026-03",1390,431933,62,19290],["2026-04",1421,360889,-169,-42985],["2026-05",1542,391435,-284,-72018],["2026-06",1621,337632,2089,435102],["2026-07",118,23909,95,19181]],
+    tot:{earnT:20783,earnU:6192353,soldT:16442,soldU:4589952},
     findings:[
-      "<b>Biggest earner of the six.</b> ~23,240 TAO (~$7.0M) in owner emissions since dTAO — a large, established subnet (owner key predates dTAO).",
-      "<b>Sells the majority but keeps a real stack.</b> Sold ~18,100 TAO ($5.2M); still holds ~8,000 TAO ($1.62M).",
-      "<b>Heavy Jan 2026 sell</b> (~5,400 TAO; position 3,155→608 TAO), then rebuilt steadily through H1 2026.",
-      "<b>A small second hotkey</b> (~874 TAO) sits alongside the owner hotkey; the trajectory shown is the owner hotkey, which is ~89% of the stake."
-    ]
-  },
-  meta: {
-    name:"Metanova", netuid:68,
-    coldkey:"5EcdJLAeYoxM3Tsf5VZ3NQPenPku218gqnjSoo3iJNy4V12V",
-    hotkey:"5CSuegTf… + 5F1tQr8K… (two hotkeys, summed)",
-    keyline:"Net accumulator. Earned ~$5.3M, sold ~$2.9M, holds ~8,720 TAO ($1.77M) near its peak. Most stake sits on a second hotkey on the same subnet — both are counted here.",
-    current:{ tao:8720.8, usd:1765357, alpha:395934 },
-    rows:[
-      ["2025-02",0,0,-48,-15582],["2025-03",1263,286004,485,109786],["2025-04",2790,1022061,1673,612842],
-      ["2025-05",2077,787172,426,161503],["2025-06",1436,497578,313,108261],["2025-07",1206,449741,297,110713],
-      ["2025-08",1010,325833,957,308862],["2025-09",849,263300,446,138328],["2025-10",769,318810,411,170357],
-      ["2025-11",744,220462,363,107537],["2025-12",767,169594,646,142785],["2026-01",566,121696,171,36728],
-      ["2026-02",530,93395,189,33297],["2026-03",753,234096,532,165216],["2026-04",660,167667,106,26970],
-      ["2026-05",566,143611,-598,-151740],["2026-06",853,177679,3319,691195],["2026-07",64,12938,-1,-262]
-    ],
-    tot:{ earnT:16902, earnU:5291637, soldT:10331, soldU:2924380 },
+      "<b>Corrected.</b> The earlier 'sold everything in Mar–Apr 2025' was a prior owner. This wallet's first live month is May 2025 (baseline), and its true stake spans two hotkeys.",
+      "<b>Biggest earner of the six</b> (~$6.2M). Sold ~$4.6M, but keeps a large position (~$1.62M).",
+      "<b>Two dump-and-rebuild cycles:</b> Aug 2025 (~$1.1M) and Jan 2026 (~$1.2M) — sells hard, then re-accumulates.",
+      "<b>Net a major holder</b> despite heavy gross selling."
+    ]},
+  meta:{name:"Metanova",netuid:68,active:"Feb 2025",
+    coldkey:"5EcdJLAeYoxM3Tsf5VZ3NQPenPku218gqnjSoo3iJNy4V12V",hotkey:"5CSuegTf… + 5F1tQr8K… (two hotkeys)",
+    keyline:"Net accumulator. Earned ~$5.3M, sold ~$2.96M, holds ~8,720 TAO ($1.77M) near its peak. Stake spans two hotkeys on the same subnet — the total is captured via account history.",
+    current:{tao:8720.8,usd:1765357,alpha:395934},
+    rows:[["2025-02",0,0,null,null],["2025-03",1263,286004,284,64193],["2025-04",2790,1022061,2320,850001],["2025-05",2077,787172,373,141559],["2025-06",1436,497578,281,97198],["2025-07",1206,449741,301,112351],["2025-08",1010,325833,961,310220],["2025-09",849,263300,442,136975],["2025-10",769,318810,414,171703],["2025-11",744,220462,361,106901],["2025-12",767,169594,643,142163],["2026-01",566,121696,177,38130],["2026-02",530,93395,272,47889],["2026-03",753,234096,91,28150],["2026-04",660,167667,-14,-3593],["2026-05",566,143611,459,116399],["2026-06",853,177679,2730,568656],["2026-07",64,12938,125,25381]],
+    tot:{earnT:16902,earnU:5291637,soldT:10233,soldU:2957869},
     findings:[
-      "<b>Net accumulator.</b> Earned ~16,900 TAO ($5.29M), sold ~10,300 TAO ($2.92M), holds ~8,720 TAO ($1.77M) near its all-time peak.",
-      "<b>Stake split across two hotkeys.</b> Most of the position sits on a second hotkey (5F1tQr8K…) on the same subnet; both are summed here as the owner's true SN68 stake — the registered owner hotkey alone shows only ~1,000 TAO and would badly understate the holding.",
-      "<b>One large June 2026 drawdown</b> (~3,300 TAO) against an otherwise rising position — trimmed from the May peak but still holding most of it.",
-      "<b>Highest current holding of the six</b> ($1.77M) — profile is hold-heavy, not dump."
-    ]
-  }
+      "<b>Net accumulator.</b> Earned ~16,900 TAO ($5.29M), sold ~10,200 TAO ($2.96M), holds ~8,720 TAO ($1.77M) near its all-time peak.",
+      "<b>Stake split across two hotkeys</b> on the same subnet; the registered owner hotkey alone shows only ~$200k and would badly understate the holding. Account-history total is used.",
+      "<b>One large June 2026 drawdown</b> (~$570k) against an otherwise rising position — trimmed from the May peak but still holding most of it.",
+      "<b>Highest current holding of the six</b> ($1.77M) — hold-heavy, not dump."
+    ]}
 };
 
-let chart, current="bitmind";
-const fmtT = n => n==null ? "—" : Math.round(n).toLocaleString("en-US");
-const usd  = n => n==null ? "—" : (n<0?"-$":"$")+Math.abs(Math.round(n)).toLocaleString("en-US");
+let chart,current="bitmind";
+const fmtT=n=>n==null?"—":Math.round(n).toLocaleString("en-US");
+const usd=n=>n==null?"—":(n<0?"-$":"$")+Math.abs(Math.round(n)).toLocaleString("en-US");
 
 function setSubnet(k){
   current=k;
-  Object.keys(DATA).forEach(s=>{
-    const b=document.getElementById("btn-"+s);
-    if(b) b.classList.toggle("active",s===k);
-  });
+  Object.keys(DATA).forEach(s=>{const b=document.getElementById("btn-"+s);if(b)b.classList.toggle("active",s===k);});
   render();
 }
 
 function render(){
-  const d=DATA[current], t=d.tot, c=d.current;
+  const d=DATA[current],t=d.tot,c=d.current;
   document.getElementById("keyline").textContent=d.keyline;
   document.getElementById("wallet").innerHTML=
-    `<span><b>Owner coldkey</b> ${d.coldkey}</span><span><b>Owner hotkey</b> ${d.hotkey}</span>`;
-
-  const pctSold=Math.round(t.soldT/t.earnT*100);
+    `<span><b>Owner coldkey</b> ${d.coldkey}</span><span><b>Owner hotkey</b> ${d.hotkey}</span><span><b>Wallet live from</b> ${d.active}</span>`;
+  const pct=Math.round(t.soldT/t.earnT*100);
   document.getElementById("kpis").innerHTML=`
-    <div class="kpi hero-earn"><div class="label">Emissions earned</div>
-      <div class="val">${fmtT(t.earnT)} TAO</div><div class="usd">${usd(t.earnU)}</div>
-      <div class="note">18% owner cut, since dTAO</div></div>
-    <div class="kpi hero-sold"><div class="label">Sold</div>
-      <div class="val">${fmtT(t.soldT)} TAO</div><div class="usd">${usd(t.soldU)}</div>
-      <div class="note">~${pctSold}% of earned · via alpha unstaking</div></div>
-    <div class="kpi hero-held"><div class="label">Currently held</div>
-      <div class="val">${fmtT(c.tao)} TAO</div><div class="usd">${usd(c.usd)}</div>
-      <div class="note">${c.alpha.toLocaleString()} α self-staked</div></div>`;
-
+    <div class="kpi he"><div class="label">Emissions earned</div><div class="val">${fmtT(t.earnT)} TAO</div><div class="usd">${usd(t.earnU)}</div><div class="note">18% owner cut, since wallet went live</div></div>
+    <div class="kpi hs"><div class="label">Sold</div><div class="val">${fmtT(t.soldT)} TAO</div><div class="usd">${usd(t.soldU)}</div><div class="note">~${pct}% of earned · via alpha unstaking</div></div>
+    <div class="kpi hh"><div class="label">Currently held</div><div class="val">${fmtT(c.tao)} TAO</div><div class="usd">${usd(c.usd)}</div><div class="note">${c.alpha.toLocaleString()} α staked (all hotkeys)</div></div>`;
   let tb="";
   d.rows.forEach(r=>{
-    const [m,eT,eU,sT,sU,flag]=r;
-    const cls=flag==="dorm"?"dorm":"";
-    let soldTAO,soldUSD;
-    if(sT==null){soldTAO='<td class="num">—</td>';soldUSD='<td class="num">—</td>';}
-    else if(sT<0){soldTAO=`<td class="num add divcol">(${fmtT(-sT)})</td>`;soldUSD=`<td class="num add">(${usd(-sU).replace('-','')})</td>`;}
-    else {soldTAO=`<td class="num sold divcol">${fmtT(sT)}</td>`;soldUSD=`<td class="num sold">${usd(sU)}</td>`;}
-    tb+=`<tr class="${cls}"><td>${m}</td>
-      <td class="num">${fmtT(eT)}</td><td class="num">${usd(eU)}</td>
-      ${soldTAO}${soldUSD}</tr>`;
+    const [m,eT,eU,sT,sU]=r;
+    let cTAO,cUSD;
+    if(sT==null){cTAO='<td class="num divcol">—</td>';cUSD='<td class="num">—</td>';}
+    else if(sT<0){cTAO=`<td class="num add divcol">(${fmtT(-sT)})</td>`;cUSD=`<td class="num add">(${usd(-sU).replace('-','')})</td>`;}
+    else{cTAO=`<td class="num sold divcol">${fmtT(sT)}</td>`;cUSD=`<td class="num sold">${usd(sU)}</td>`;}
+    tb+=`<tr><td>${m}</td><td class="num">${fmtT(eT)}</td><td class="num">${usd(eU)}</td>${cTAO}${cUSD}</tr>`;
   });
   document.getElementById("tbody").innerHTML=tb;
-  document.getElementById("tfoot").innerHTML=`<tr><td>Total</td>
-    <td class="num">${fmtT(t.earnT)}</td><td class="num">${usd(t.earnU)}</td>
-    <td class="num divcol">${fmtT(t.soldT)}</td><td class="num">${usd(t.soldU)}</td></tr>`;
-  document.getElementById("addnote").innerHTML="( ) = net added to stake that month (validator rewards / restaking), not sold. Totals count sold months only.";
-
+  document.getElementById("tfoot").innerHTML=`<tr><td>Total</td><td class="num">${fmtT(t.earnT)}</td><td class="num">${usd(t.earnU)}</td><td class="num divcol">${fmtT(t.soldT)}</td><td class="num">${usd(t.soldU)}</td></tr>`;
+  document.getElementById("addnote").innerHTML="First live month = baseline (position established, shown as —). ( ) = net added to stake that month, not sold. Sold total counts sold months only.";
   document.getElementById("findings").innerHTML=d.findings.map(f=>`<p>${f}</p>`).join("");
-
-  // chart: earned vs sold, USD
-  const labels=d.rows.map(r=>r[0]);
-  const earn=d.rows.map(r=>r[2]);
-  const sold=d.rows.map(r=>r[4]);
-  const soldColor=d.rows.map(r=> (r[4]!=null && r[4]<0) ? "#1a7a3a" : "#c0392b");
-  if(chart) chart.destroy();
-  chart=new Chart(document.getElementById("chart"),{
-    type:"bar",
+  const labels=d.rows.map(r=>r[0]),earn=d.rows.map(r=>r[2]),sold=d.rows.map(r=>r[4]);
+  const soldColor=d.rows.map(r=>(r[4]!=null&&r[4]<0)?"#1a7a3a":"#c0392b");
+  if(chart)chart.destroy();
+  chart=new Chart(document.getElementById("chart"),{type:"bar",
     data:{labels,datasets:[
       {label:"Earned (USD)",data:earn,backgroundColor:"#d4a017cc",borderColor:"#d4a017",borderWidth:1},
-      {label:"Sold (USD)",data:sold,backgroundColor:soldColor,borderWidth:0}
-    ]},
-    options:{responsive:true,maintainAspectRatio:false,
-      interaction:{mode:"index",intersect:false},
-      plugins:{legend:{display:false},
-        tooltip:{callbacks:{label:ctx=>{
-          const v=ctx.parsed.y;
-          if(ctx.datasetIndex===1 && v<0) return "Added to stake: $"+Math.abs(Math.round(v)).toLocaleString();
-          return (ctx.datasetIndex===0?"Earned: $":"Sold: $")+Math.round(v).toLocaleString();
-        }}}},
-      scales:{
-        y:{title:{display:true,text:"USD / month",color:"#555",font:{size:11}},
-           ticks:{callback:v=>(v<0?"-$":"$")+Math.abs(v/1000)+"k",color:"#999",font:{size:10}},
-           grid:{color:"#f0f0f0"}},
-        x:{ticks:{color:"#999",font:{size:10},maxRotation:45,minRotation:45},grid:{display:false}}
-      }}
-  });
+      {label:"Sold (USD)",data:sold,backgroundColor:soldColor,borderWidth:0}]},
+    options:{responsive:true,maintainAspectRatio:false,interaction:{mode:"index",intersect:false},
+      plugins:{legend:{display:false},tooltip:{callbacks:{label:ctx=>{const v=ctx.parsed.y;
+        if(v==null)return "—";
+        if(ctx.datasetIndex===1&&v<0)return "Added to stake: $"+Math.abs(Math.round(v)).toLocaleString();
+        return (ctx.datasetIndex===0?"Earned: $":"Sold: $")+Math.round(v).toLocaleString();}}}},
+      scales:{y:{title:{display:true,text:"USD / month",color:"#555",font:{size:11}},ticks:{callback:v=>(v<0?"-$":"$")+Math.abs(v/1000)+"k",color:"#999",font:{size:10}},grid:{color:"#f0f0f0"}},
+        x:{ticks:{color:"#999",font:{size:10},maxRotation:45,minRotation:45},grid:{display:false}}}}});
 }
 render();
 </script>
