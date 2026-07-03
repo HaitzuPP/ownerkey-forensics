@@ -58,6 +58,14 @@
   .mechanics .tag{display:inline-block;font-size:10px;font-weight:700;letter-spacing:.5px;text-transform:uppercase;color:#fff;background:var(--ink);padding:2px 8px;border-radius:3px;margin-right:8px;vertical-align:middle}
   .mechanics b{color:var(--ink)}
   .mechanics .posture{margin:12px 0 0;padding-top:11px;border-top:1px solid var(--line2);font-weight:700;color:var(--ink)}
+  .locksplit{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-bottom:6px}
+  .lk{border:1px solid var(--line);border-radius:6px;padding:16px 18px}
+  .lk-lock{border-top:3px solid var(--ink)} .lk-free{border-top:3px solid var(--green)}
+  .lk .label{font-size:11px;text-transform:uppercase;letter-spacing:.5px;color:var(--grey);font-weight:700;margin-bottom:8px}
+  .lk .val{font-size:24px;font-weight:700;letter-spacing:-.5px}
+  .lk .usd{font-size:14px;color:#555;font-weight:700;margin-top:2px}
+  .lk .note{font-size:11px;color:#777;margin-top:6px}
+  @media(max-width:720px){.locksplit{grid-template-columns:1fr}}
   @media(max-width:720px){.kpis{grid-template-columns:1fr}.wrap{padding:22px 16px}}
 </style>
 </head>
@@ -85,6 +93,10 @@
 
   <h2>How the owner cut is paid</h2>
   <div class="mechanics" id="mechanics"></div>
+
+  <h2>Conviction-locked vs. unlocked (live)</h2>
+  <div class="locksplit" id="locksplit"></div>
+  <p class="addnote" id="lockext"></p>
 
   <h2>Earned vs. sold, by month (USD)</h2>
   <div class="legend">
@@ -205,6 +217,15 @@ const MECH={
   meta:"Largely left emissions staked to ~8,720 TAO; the June 2026 drawdown is its only sizeable unwind. Post-May owner cut auto-locks."
 };
 
+const CONV={
+  bitmind:{lTao:332,lUsd:70281,mode:"decaying",pct:82,uTao:72,uUsd:15210,ext:892},
+  ditto:{lTao:0,lUsd:0,mode:"none",pct:0,uTao:413,uUsd:87263,ext:4097},
+  beam:{lTao:0,lUsd:0,mode:"none",pct:0,uTao:464,uUsd:98064,ext:901},
+  minos:{lTao:0,lUsd:0,mode:"none",pct:0,uTao:7685,uUsd:1625315,ext:51},
+  score:{lTao:3805,lUsd:804795,mode:"perpetual",pct:47,uTao:4301,uUsd:909694,ext:6130},
+  meta:{lTao:4398,lUsd:930061,mode:"decaying",pct:48,uTao:4846,uUsd:1024944,ext:9325}
+};
+
 let chart,current="bitmind";
 const fmtT=n=>n==null?"—":Math.round(n).toLocaleString("en-US");
 const usd=n=>n==null?"—":(n<0?"-$":"$")+Math.abs(Math.round(n)).toLocaleString("en-US");
@@ -227,6 +248,15 @@ function render(){
     <div class="kpi hh"><div class="label">Currently held</div><div class="val">${fmtT(c.tao)} TAO</div><div class="usd">${usd(c.usd)}</div><div class="note">${c.alpha.toLocaleString()} α staked to owner coldkey</div></div>`;
   document.getElementById("mechanics").innerHTML=
     `<span class="tag">Mechanism</span>${MECH_EXPLAINER}<p class="posture">${d.name}: ${MECH[current]}</p>`;
+  const L=CONV[current];
+  const modeNote=L.mode==="none"?"0 locked — owner cut not locked; entire position is liquid":
+    L.mode==="perpetual"?`perpetual lock · cannot unstake · ${L.pct}% of holdings`:
+    `decaying lock (~60-day half-life) · ${L.pct}% of holdings`;
+  document.getElementById("locksplit").innerHTML=
+    `<div class="lk lk-lock"><div class="label">Locked in conviction</div><div class="val">${fmtT(L.lTao)} TAO</div><div class="usd">${usd(L.lUsd)}</div><div class="note">${modeNote}</div></div>
+     <div class="lk lk-free"><div class="label">Wallet unlocked (liquid)</div><div class="val">${fmtT(L.uTao)} TAO</div><div class="usd">${usd(L.uUsd)}</div><div class="note">freely unstakeable / spendable</div></div>`;
+  document.getElementById("lockext").innerHTML=
+    `Live conviction snapshot · TAO ≈ $211.5. Plus <b>${fmtT(L.ext)} TAO</b> of conviction locked to this owner's hotkey by <b>third parties</b> (external backing, not owner-held).`;
   let tb="";
   d.rows.forEach(r=>{
     const [m,eT,eU,sT,sU]=r;
