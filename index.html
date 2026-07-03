@@ -54,6 +54,10 @@
   .clarify{border:1px solid var(--amber);background:#fdf8ec;border-radius:6px;padding:14px 18px;font-size:12.5px;color:#4a3c14;margin:0 0 16px;line-height:1.5}
   .clarify b{color:var(--ink)}
   .clarify .tag{display:inline-block;font-size:10px;font-weight:700;letter-spacing:.5px;text-transform:uppercase;color:#fff;background:var(--amber);padding:2px 8px;border-radius:3px;margin-right:8px;vertical-align:middle}
+  .mechanics{border:1px solid var(--line);border-radius:6px;padding:16px 18px;font-size:13px;color:#333;line-height:1.55;margin-bottom:8px;background:#fff}
+  .mechanics .tag{display:inline-block;font-size:10px;font-weight:700;letter-spacing:.5px;text-transform:uppercase;color:#fff;background:var(--ink);padding:2px 8px;border-radius:3px;margin-right:8px;vertical-align:middle}
+  .mechanics b{color:var(--ink)}
+  .mechanics .posture{margin:12px 0 0;padding-top:11px;border-top:1px solid var(--line2);font-weight:700;color:var(--ink)}
   @media(max-width:720px){.kpis{grid-template-columns:1fr}.wrap{padding:22px 16px}}
 </style>
 </head>
@@ -78,6 +82,9 @@
   <div class="keyline" id="keyline"></div>
   <div class="wallet" id="wallet"></div>
   <div class="kpis" id="kpis"></div>
+
+  <h2>How the owner cut is paid</h2>
+  <div class="mechanics" id="mechanics"></div>
 
   <h2>Earned vs. sold, by month (USD)</h2>
   <div class="legend">
@@ -188,6 +195,16 @@ const DATA = {
     ]}
 };
 
+const MECH_EXPLAINER="The 18% owner cut is <b>not credited as a liquid, spendable balance</b>. It is automatically <b>locked via conviction staking to the owner's coldkey</b>. Two consequences follow: accumulation is the default — emissions build as locked stake with no action from the owner — and reducing the position requires the owner to <b>actively unwind that locked stake</b>. So \"Currently held\" is the conviction-locked owner stake, and \"Sold\" is deliberate unwinding of locked stake, not the dumping of a free balance.";
+const MECH={
+  bitmind:"Locked owner stake peaked near 5,000 TAO (Oct 2025) and has been actively unwound to ~394 TAO — a deliberate, sustained exit of a locked position.",
+  ditto:"Live only since April 2026; ~400 TAO locked, with a single unwind in June. Too short a record to characterise the posture.",
+  beam:"Locked stake peaked ~1,110 TAO (May 2026) and was unwound to ~465 TAO — repeated build-and-unwind cycles, with little left locked.",
+  minos:"Locked stake has grown to ~7,727 TAO with only minor unwinding — emissions are being left locked (hold posture).",
+  score:"~8,002 TAO locked now, after two large unwinds (Aug 2025, Jan 2026), each followed by a full re-lock — sells in waves, then re-accumulates.",
+  meta:"~8,720 TAO locked, near its peak, with modest unwinding — emissions are largely left locked."
+};
+
 let chart,current="bitmind";
 const fmtT=n=>n==null?"—":Math.round(n).toLocaleString("en-US");
 const usd=n=>n==null?"—":(n<0?"-$":"$")+Math.abs(Math.round(n)).toLocaleString("en-US");
@@ -207,7 +224,9 @@ function render(){
   document.getElementById("kpis").innerHTML=`
     <div class="kpi he"><div class="label">Emissions earned</div><div class="val">${fmtT(t.earnT)} TAO</div><div class="usd">${usd(t.earnU)}</div><div class="note">18% owner cut, since wallet went live</div></div>
     <div class="kpi hs"><div class="label">Sold</div><div class="val">${fmtT(t.soldT)} TAO</div><div class="usd">${usd(t.soldU)}</div><div class="note">~${pct}% of earned · via alpha unstaking</div></div>
-    <div class="kpi hh"><div class="label">Currently held</div><div class="val">${fmtT(c.tao)} TAO</div><div class="usd">${usd(c.usd)}</div><div class="note">${c.alpha.toLocaleString()} α staked (all hotkeys)</div></div>`;
+    <div class="kpi hh"><div class="label">Currently held (locked)</div><div class="val">${fmtT(c.tao)} TAO</div><div class="usd">${usd(c.usd)}</div><div class="note">${c.alpha.toLocaleString()} α conviction-staked</div></div>`;
+  document.getElementById("mechanics").innerHTML=
+    `<span class="tag">Mechanism</span>${MECH_EXPLAINER}<p class="posture">${d.name}: ${MECH[current]}</p>`;
   let tb="";
   d.rows.forEach(r=>{
     const [m,eT,eU,sT,sU]=r;
