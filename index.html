@@ -195,14 +195,14 @@ const DATA = {
     ]}
 };
 
-const MECH_EXPLAINER="The 18% owner cut is <b>not credited as a liquid, spendable balance</b>. It is automatically <b>locked via conviction staking to the owner's coldkey</b>. Two consequences follow: accumulation is the default — emissions build as locked stake with no action from the owner — and reducing the position requires the owner to <b>actively unwind that locked stake</b>. So \"Currently held\" is the conviction-locked owner stake, and \"Sold\" is deliberate unwinding of locked stake, not the dumping of a free balance.";
+const MECH_EXPLAINER="<b>Conviction (live on mainnet ~13 May 2026, subtensor PRs #2658/#2687).</b> Since then a subnet owner's share of each block's emission is <b>auto-locked to the owner's hotkey</b> and earns <b>instant conviction</b> (governance weight = the locked amount). But the lock is <b>decaying by default</b>: locked mass melts on a ~60-day half-life (≈50% unlockable after 60 days, ~87% after 180), and the owner can unstake whatever has decayed with no special action. Only an explicit <b>perpetual lock</b> (opt-in) freezes it fully and blocks unstaking while conviction grows toward 100%. So the owner cut isn't paid as a liquid balance, but \"locked\" is soft unless perpetual — and every exit is now a visible on-chain event. <b>Read this dashboard with the date in mind:</b> conviction only governs data after mid-May 2026 (~the final 7 weeks). Everything earlier was ordinary, freely-unstakeable stake, so most of the selling shown here predates conviction and was unconstrained.";
 const MECH={
-  bitmind:"Locked owner stake peaked near 5,000 TAO (Oct 2025) and has been actively unwound to ~394 TAO — a deliberate, sustained exit of a locked position.",
-  ditto:"Live only since April 2026; ~400 TAO locked, with a single unwind in June. Too short a record to characterise the posture.",
-  beam:"Locked stake peaked ~1,110 TAO (May 2026) and was unwound to ~465 TAO — repeated build-and-unwind cycles, with little left locked.",
-  minos:"Locked stake has grown to ~7,727 TAO with only minor unwinding — emissions are being left locked (hold posture).",
-  score:"~8,002 TAO locked now, after two large unwinds (Aug 2025, Jan 2026), each followed by a full re-lock — sells in waves, then re-accumulates.",
-  meta:"~8,720 TAO locked, near its peak, with modest unwinding — emissions are largely left locked."
+  bitmind:"Sold its position down from a ~5,000 TAO peak (Oct 2025) to ~394 TAO — almost entirely <b>before</b> conviction, as ordinary liquid stake. Little sits under the lock regime yet.",
+  ditto:"Wallet only live since April 2026, so its short history straddles the conviction launch; ~400 TAO staked, with one unwind in June.",
+  beam:"Repeated build-and-dump cycles through early 2026 as liquid stake; the May peak (~1,110 TAO) → June drawdown brackets the conviction launch. Holds ~465 TAO.",
+  minos:"Has left emissions staked, growing to ~7,727 TAO. From mid-May its new owner cut auto-locks (decaying), reinforcing an already clear hold posture.",
+  score:"Two large liquid unwinds (Aug 2025, Jan 2026) predate conviction, each followed by a full rebuild; holds ~8,002 TAO. Post-May owner cut now auto-locks.",
+  meta:"Largely left emissions staked to ~8,720 TAO; the June 2026 drawdown is its only sizeable unwind. Post-May owner cut auto-locks."
 };
 
 let chart,current="bitmind";
@@ -224,7 +224,7 @@ function render(){
   document.getElementById("kpis").innerHTML=`
     <div class="kpi he"><div class="label">Emissions earned</div><div class="val">${fmtT(t.earnT)} TAO</div><div class="usd">${usd(t.earnU)}</div><div class="note">18% owner cut, since wallet went live</div></div>
     <div class="kpi hs"><div class="label">Sold</div><div class="val">${fmtT(t.soldT)} TAO</div><div class="usd">${usd(t.soldU)}</div><div class="note">~${pct}% of earned · via alpha unstaking</div></div>
-    <div class="kpi hh"><div class="label">Currently held (locked)</div><div class="val">${fmtT(c.tao)} TAO</div><div class="usd">${usd(c.usd)}</div><div class="note">${c.alpha.toLocaleString()} α conviction-staked</div></div>`;
+    <div class="kpi hh"><div class="label">Currently held</div><div class="val">${fmtT(c.tao)} TAO</div><div class="usd">${usd(c.usd)}</div><div class="note">${c.alpha.toLocaleString()} α staked to owner coldkey</div></div>`;
   document.getElementById("mechanics").innerHTML=
     `<span class="tag">Mechanism</span>${MECH_EXPLAINER}<p class="posture">${d.name}: ${MECH[current]}</p>`;
   let tb="";
